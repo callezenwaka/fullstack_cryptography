@@ -1,0 +1,70 @@
+{
+  "name": "fullstack_cryptography",
+  "version": "1.0.0",
+  "description": "Encrypted TypeScript Express + React Application - Cryptography Demo",
+  "scripts": {
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install",
+    "setup-keys": "cd scripts && npx ts-node setupKeys.ts",
+    "setup-db": "bash scripts/setup-database.sh",
+    "setup": "npm run install:all && npm run setup-keys && npm run setup-db",
+    "verify": "node scripts/verify-setup.js",
+    
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "dev:local": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    
+    "build:server": "cd server && npm run build",
+    "build:client": "cd client && npm run build",
+    "build": "npm run build:server && npm run build:client",
+    
+    "start:server": "cd server && npm start",
+    "start:client": "cd client && npm run preview",
+    "start": "concurrently \"npm run start:server\" \"npm run start:client\"",
+    
+    "demo": "bash scripts/demo-setup.sh",
+    "demo:start": "bash scripts/demo-setup.sh",
+    "demo:stop": "docker-compose down",
+    "demo:clean": "docker-compose down -v && echo '🧹 Demo environment cleaned!'",
+    "demo:logs": "docker-compose logs -f",
+    "demo:logs:server": "docker-compose logs -f server",
+    "demo:logs:client": "docker-compose logs -f client",
+    "demo:restart": "docker-compose restart",
+    "demo:restart:server": "docker-compose restart server",
+    "demo:restart:client": "docker-compose restart client",
+    "demo:shell:server": "docker-compose exec server sh",
+    "demo:shell:client": "docker-compose exec client sh",
+    "demo:db:reset": "docker-compose restart postgres",
+    
+    "cleanup": "bash scripts/cleanup.sh",
+    "check-assets": "bash scripts/check-unused-assets.sh",
+    
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/callezenwaka/fullstack_cryptography.git"
+  },
+  "keywords": ["cryptography", "demo", "encryption", "react", "express", "postgresql", "automation"],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/callezenwaka/fullstack_cryptography/issues"
+  },
+  "homepage": "https://github.com/callezenwaka/fullstack_cryptography#readme",
+  "devDependencies": {
+    "@types/node": "^24.1.0",
+    "@types/pg": "^8.15.5",
+    "concurrently": "^9.2.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "pg": "^8.16.3"
+  }
+}

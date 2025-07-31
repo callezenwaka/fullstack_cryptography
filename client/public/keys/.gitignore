@@ -1,0 +1,11 @@
+# Client private keys should NEVER be committed to version control
+*-private.pem
+client-private.pem
+
+# In production, client keys should be generated dynamically in the browser
+# For development, we can allow public keys to be committed
+!*-public.pem
+!server-public.pem
+
+# Keep this .gitignore file
+!.gitignore

@@ -1,0 +1,96 @@
+services:
+  # Database Services
+  postgres:
+    image: postgres:15-alpine
+    container_name: crypto_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: crypto_app
+      POSTGRES_USER: crypto_user
+      POSTGRES_PASSWORD: crypto_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crypto_user -d crypto_app"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - crypto_network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: crypto_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres
+    networks:
+      - crypto_network
+
+  # Backend Server
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: crypto_server
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://crypto_user:crypto_password@postgres:5432/crypto_app
+      - PORT=3001
+    volumes:
+      # Mount server source code for development
+      - ./server/src:/app/src
+      - ./server/keys:/app/keys
+      # Keep node_modules in container
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - crypto_network
+    command: npm run dev
+
+  # Frontend Client
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: crypto_client
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3001
+    env_file:
+      - client/.env  # Load the auto-generated .env file with private key
+    volumes:
+      # Mount client source code for development
+      - ./client/src:/app/src
+      - ./client/public:/app/public
+      # Keep node_modules in container
+      - /app/node_modules
+    depends_on:
+      - server
+    networks:
+      - crypto_network
+    command: npm run dev
+
+volumes:
+  postgres_data:
+
+networks:
+  crypto_network:
+    driver: bridge

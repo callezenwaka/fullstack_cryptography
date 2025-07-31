@@ -1,0 +1,21 @@
+# Ignore all private keys for security
+*-private.pem
+private-key.pem
+server-private.pem
+
+# Allow public keys to be committed (optional, depends on deployment strategy)
+!*-public.pem
+!server-public.pem
+!client-public.pem
+
+# Keep this .gitignore file
+!.gitignore
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+
+# Backup files
+*.bak
+*.backup
