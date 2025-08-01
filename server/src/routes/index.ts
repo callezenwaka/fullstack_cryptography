@@ -1,6 +1,6 @@
 import express from 'express';
-import userRoutes from './user';
-import transactionRoutes from './transaction';
+import userRoutes from './userRoute';
+import transactionRoutes from './transactionRoute';
 import { keyManager } from '../utils/keyManager';
 
 const router = express.Router();

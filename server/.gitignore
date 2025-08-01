@@ -7,3 +7,9 @@ typechain
 #Hardhat files
 cache
 artifacts
+
+# Client environment files (contain base64 private keys)
+client/.env
+client/.env.local
+client/.env.development
+client/.env.production

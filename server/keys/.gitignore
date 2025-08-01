@@ -19,3 +19,18 @@ server-private.pem
 # Backup files
 *.bak
 *.backup
+
+# Server private keys should NEVER be committed
+*-private.pem
+server-private.pem
+*.key
+*.p8
+*.pkcs8
+
+# Allow public keys to be committed for development
+!*-public.pem
+!client-public.pem
+!server-public.pem
+
+# Keep this .gitignore file
+!.gitignore

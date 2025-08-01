@@ -29,10 +29,20 @@ services:
       PGADMIN_DEFAULT_PASSWORD: admin123
       PGADMIN_CONFIG_SERVER_MODE: 'False'
       PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+      # Disable CSRF protection
+      PGADMIN_CONFIG_WTF_CSRF_CHECK_DEFAULT: 'False'
+      PGADMIN_CONFIG_WTF_CSRF_TIME_LIMIT: 'None'
+      PGADMIN_CONFIG_WTF_CSRF_ENABLED: 'False'
     ports:
       - "8080:80"
+    volumes:
+      # Pre-configure server and password
+      - ./database/pgadmin-config/servers.json:/pgadmin4/servers.json:ro
+      - ./database/pgadmin-config/pgpass:/tmp/pgpass:ro
+      - pgadmin_data:/var/lib/pgadmin
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - crypto_network
 
@@ -90,6 +100,7 @@ services:
 
 volumes:
   postgres_data:
+  pgadmin_data:
 
 networks:
   crypto_network:

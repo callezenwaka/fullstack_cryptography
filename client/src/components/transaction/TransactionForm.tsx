@@ -19,7 +19,7 @@ const TransactionForm: React.FC = () => {
 
   const createTransactionMutation = useMutation({
     mutationFn: transactionService.createTransaction,
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success('Transaction created successfully!');
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       setFormData({
@@ -67,7 +67,7 @@ const TransactionForm: React.FC = () => {
     <div className="bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-xl font-semibold text-gray-800 mb-4">Create New Transaction</h2>
       
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 text-gray-800">
         <div>
           <label htmlFor="userId" className="block text-sm font-medium text-gray-700 mb-1">
             User ID
@@ -80,7 +80,7 @@ const TransactionForm: React.FC = () => {
             onChange={handleChange}
             min="1"
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
 
@@ -97,7 +97,7 @@ const TransactionForm: React.FC = () => {
             min="0.01"
             step="0.01"
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
 
@@ -111,7 +111,7 @@ const TransactionForm: React.FC = () => {
             value={formData.type}
             onChange={handleChange}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="credit">Credit</option>
             <option value="debit">Debit</option>
@@ -129,7 +129,7 @@ const TransactionForm: React.FC = () => {
             onChange={handleChange}
             rows={3}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             placeholder="Enter transaction description..."
           />
         </div>
@@ -140,7 +140,7 @@ const TransactionForm: React.FC = () => {
           className={clsx(
             'w-full py-2 px-4 rounded-md font-medium transition-colors',
             {
-              'bg-primary-600 text-white hover:bg-primary-700': isReady && !createTransactionMutation.isPending,
+              'bg-[#053d22] text-white hover:bg-[#224031]': isReady && !createTransactionMutation.isPending,
               'bg-gray-300 text-gray-500 cursor-not-allowed': !isReady || createTransactionMutation.isPending
             }
           )}

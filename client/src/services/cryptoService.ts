@@ -1,4 +1,3 @@
-// client/src/services/cryptoService.ts
 import { EncryptionKeys, EncryptionStatus, HybridEncryptedData } from '@/types';
 import { EncryptionUtils } from '@/utils/encryption';
 
@@ -15,7 +14,7 @@ class CryptoService {
 
   subscribe(listener: (status: EncryptionStatus) => void): () => void {
     this.listeners.push(listener);
-    listener(this.status); // Send initial status
+    listener(this.status);
     
     return () => {
       const index = this.listeners.indexOf(listener);
@@ -40,17 +39,14 @@ class CryptoService {
     this.updateStatus({ isLoading: true, error: null });
 
     try {
-      // Get client private key from environment variable (Docker)
       const clientPrivateKeyB64 = import.meta.env.VITE_CLIENT_PRIVATE_KEY_B64;
       
       if (!clientPrivateKeyB64) {
         throw new Error('Client private key not found in environment variables');
       }
       
-      // Decode base64 private key
       const clientPrivatePem = atob(clientPrivateKeyB64);
       
-      // Fetch public keys from backend (via Vite proxy to port 3001)
       const [clientPublicPem, serverPublicPem] = await Promise.all([
         fetch('/keys/client-public.pem').then(r => {
           if (!r.ok) throw new Error(`Failed to fetch client public key: ${r.status}`);
@@ -62,16 +58,14 @@ class CryptoService {
         })
       ]);
 
-      // Import all keys
       const [clientPrivate, clientPublic, serverPublic] = await Promise.all([
-        EncryptionUtils.importPrivateKey(clientPrivatePem), // From environment variable
-        EncryptionUtils.importPublicKey(clientPublicPem),   // From backend
-        EncryptionUtils.importPublicKey(serverPublicPem)    // From backend
+        EncryptionUtils.importPrivateKey(clientPrivatePem),
+        EncryptionUtils.importPublicKey(clientPublicPem),
+        EncryptionUtils.importPublicKey(serverPublicPem)
       ]);
 
       this.keys = { clientPrivate, clientPublic, serverPublic };
 
-      // Generate fingerprints
       const keyFingerprints = {
         clientPublic: EncryptionUtils.generateKeyFingerprint(clientPublicPem),
         serverPublic: EncryptionUtils.generateKeyFingerprint(serverPublicPem)

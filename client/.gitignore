@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Client environment files (contain base64 private keys)
+client/.env
+client/.env.local
+client/.env.development
+client/.env.production

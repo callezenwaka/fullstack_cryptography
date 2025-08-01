@@ -1,11 +1,23 @@
+# client/src/assets/keys/.gitignore
 # Client private keys should NEVER be committed to version control
+
+# Exclude all private key files (multiple naming patterns)
 *-private.pem
 client-private.pem
+client-key.pem
+*-key.pem
+*.key
+*.p8
+*.pkcs8
+
+# Exclude any .env files that might contain keys
+.env*
 
 # In production, client keys should be generated dynamically in the browser
 # For development, we can allow public keys to be committed
 !*-public.pem
 !server-public.pem
+!client-public.pem
 
 # Keep this .gitignore file
 !.gitignore

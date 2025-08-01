@@ -9,7 +9,6 @@ export interface DecryptedRequest extends Request {
 
 export const decryptMiddleware = (req: DecryptedRequest, res: Response, next: NextFunction): void => {
   try {
-    // Only decrypt if the request contains encrypted data
     if (req.body && req.body.encryptedData) {
       const { encryptedData, type } = req.body as EncryptedRequestPayload;
       const decryptedData = cryptoUtils.decryptData(encryptedData, type);

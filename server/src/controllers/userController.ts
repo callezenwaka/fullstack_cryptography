@@ -1,3 +1,4 @@
+// server/src/controllers/userController.ts
 import { Request, Response } from 'express';
 import { UserModel } from '../models';
 import { ApiResponse } from '../types';

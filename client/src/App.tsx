@@ -1,6 +1,7 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
+import { Header, Footer } from "./components/partials";
 import EncryptionStatus from './components/encryption/EncryptionStatus';
 import TransactionForm from './components/transaction/TransactionForm';
 import TransactionList from './components/transaction/TransactionList';
@@ -19,15 +20,20 @@ const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen bg-gray-100">
+        
+        <Header />
+
         <div className="container mx-auto px-4 py-8">
-          <header className="mb-8">
+
+          <div className='mb-8 text-center'>
+
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Encrypted Transaction System
             </h1>
             <p className="text-gray-600">
               Secure communication using asymmetric encryption
             </p>
-          </header>
+          </div>
 
           <div className="grid gap-6">
             {/* Encryption Status */}
@@ -48,6 +54,8 @@ const App: React.FC = () => {
             </div>
           </div>
         </div>
+
+        <Footer />
       </div>
 
       <Toaster
@@ -70,6 +78,7 @@ const App: React.FC = () => {
           },
         }}
       />
+      
     </QueryClientProvider>
   );
 };

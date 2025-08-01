@@ -1,22 +1,27 @@
 #!/bin/bash
 
+# demo-setup.sh
+# This script automates the setup of a full-stack cryptography demo environment.
 set -e  # Exit on any error
 
 echo "🚀 Starting Crypto Demo - Full Pipeline Automation"
 echo "=================================================="
 
-# Function to generate RSA key pair
 generate_key_pair() {
     local name=$1
     local key_size=2048
     
     echo "🔑 Generating $name key pair..."
     
-    # Generate private key
-    openssl genpkey -algorithm RSA -pkcs8 -out /tmp/${name}-private.pem -pkeyopt rsa_keygen_bits:$key_size
+    # Generate private key (most compatible method)
+    openssl genrsa -out /tmp/${name}-private.pem $key_size
     
-    # Generate public key
-    openssl pkey -in /tmp/${name}-private.pem -pubout -out /tmp/${name}-public.pem
+    # Convert to PKCS#8 format 
+    openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in /tmp/${name}-private.pem -out /tmp/${name}-private-pkcs8.pem
+    mv /tmp/${name}-private-pkcs8.pem /tmp/${name}-private.pem
+    
+    # Generate public key from private key
+    openssl rsa -in /tmp/${name}-private.pem -pubout -out /tmp/${name}-public.pem
     
     echo "✅ $name key pair generated"
 }

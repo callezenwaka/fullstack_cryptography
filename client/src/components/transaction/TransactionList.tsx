@@ -11,7 +11,7 @@ const TransactionList: React.FC = () => {
   
   const { data: transactions, isLoading, error, refetch } = useQuery({
     queryKey: ['transactions'],
-    queryFn: transactionService.getTransactions,
+    queryFn: () => transactionService.getTransactions(),
     enabled: isReady,
     refetchInterval: 5000 // Refetch every 5 seconds
   });

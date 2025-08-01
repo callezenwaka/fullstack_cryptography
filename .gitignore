@@ -54,3 +54,15 @@ Thumbs.db
 # Private keys (security)
 **/*-private.pem
 **/private-key.pem
+
+# Crypto keys - should never be committed
+server/keys/*.pem
+client/src/assets/keys/*.pem  
+client/src/assets/keys/*.key
+client/public/keys/*-private.pem
+
+# Environment files with sensitive data
+client/.env
+server/.env
+.env.local
+.env.*.local

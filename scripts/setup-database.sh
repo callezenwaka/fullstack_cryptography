@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# setup-database.sh
+# This script sets up the database for the full-stack cryptography demo environment.
 echo "🚀 Setting up database..."
 
 # Wait for database to be ready
