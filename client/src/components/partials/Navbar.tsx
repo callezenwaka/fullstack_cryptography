@@ -1,5 +1,6 @@
 import { useState } from "react";
-import logo from "../../assets/images/logo.svg";
+// import logo from "../../assets/images/logo.svg";
+import { ShieldCheckIcon } from '@heroicons/react/24/outline';
 
 const Navbar = () => {
 
@@ -7,8 +8,9 @@ const Navbar = () => {
 
   return (
     <nav className="w-full flex md:justify-between justify-between items-center p-4 navbar-space-between">
-      <div className="md:flex-[0.5] flex-initial justify-center items-center">
-        <img src={logo} alt="logo" title="Crypto Xchange" className="h-16 w-16 cursor-pointer logo" />
+      <div className="md:flex-[0.5] flex-initial justify-center items-center text-[#053d22]">
+        <ShieldCheckIcon className="w-16 h-16 cursor-pointer logo" />
+        {/* <img src={logo} alt="logo" title="Crypto Xchange" className="h-16 w-16 cursor-pointer logo" /> */}
       </div>
       <ul className="text-white md:flex list-none flex-row justify-between items-center flex-initial">
         {!isAuthenticated && (

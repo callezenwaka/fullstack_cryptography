@@ -1,40 +1,18 @@
 // server/src/controllers/transactionController.ts
 import { Request, Response } from 'express';
-import { TransactionModel } from '../models';
-import { ApiResponse } from '../types';
+import { TransactionService } from '../services/transactionService';
+import { ResponseUtils } from '../utils/response_utils';
 import { CreateTransactionRequest } from '../types/transaction';
-import { cryptoUtils } from '../utils/crypto_utils';
+
+const transactionService = new TransactionService();
 
 export const getTransactions = async (req: Request, res: Response): Promise<void> => {
   try {
-    const transactions = await TransactionModel.findAll();
-    
-    const response: ApiResponse = {
-      success: true,
-      data: transactions,
-      message: 'Transactions retrieved successfully'
-    };
-
-    const { encryptedData, type } = cryptoUtils.encryptData(JSON.stringify(response));
-    
-    res.json({
-      encryptedResponse: encryptedData,
-      type
-    });
+    const transactions = await transactionService.getAllTransactions();
+    ResponseUtils.sendSuccess(res, transactions, 'Transactions retrieved successfully');
   } catch (error) {
-    console.error('Error fetching transactions:', error);
-    
-    const errorResponse: ApiResponse = {
-      success: false,
-      error: 'Failed to retrieve transactions'
-    };
-
-    const { encryptedData, type } = cryptoUtils.encryptData(JSON.stringify(errorResponse));
-    
-    res.status(500).json({
-      encryptedResponse: encryptedData,
-      type
-    });
+    console.error('Error in getTransactions controller:', error);
+    ResponseUtils.sendError(res, 'Failed to retrieve transactions');
   }
 };
 
@@ -43,137 +21,53 @@ export const getTransaction = async (req: Request, res: Response): Promise<void>
     const { id } = req.params;
     const transactionId = parseInt(id, 10);
 
-    if (isNaN(transactionId)) {
-      const errorResponse: ApiResponse = {
-        success: false,
-        error: 'Invalid transaction ID'
-      };
-
-      const { encryptedData, type } = cryptoUtils.encryptData(JSON.stringify(errorResponse));
-      
-      res.status(400).json({
-        encryptedResponse: encryptedData,
-        type
-      });
-      return;
-    }
-
-    const transaction = await TransactionModel.findById(transactionId);
+    const transaction = await transactionService.getTransactionById(transactionId);
     
     if (!transaction) {
-      const errorResponse: ApiResponse = {
-        success: false,
-        error: 'Transaction not found'
-      };
-
-      const { encryptedData, type } = cryptoUtils.encryptData(JSON.stringify(errorResponse));
-      
-      res.status(404).json({
-        encryptedResponse: encryptedData,
-        type
-      });
+      ResponseUtils.sendNotFound(res, 'Transaction not found');
       return;
     }
 
-    const response: ApiResponse = {
-      success: true,
-      data: transaction,
-      message: 'Transaction retrieved successfully'
-    };
-
-    const { encryptedData, type } = cryptoUtils.encryptData(JSON.stringify(response));
-    
-    res.json({
-      encryptedResponse: encryptedData,
-      type
-    });
+    ResponseUtils.sendSuccess(res, transaction, 'Transaction retrieved successfully');
   } catch (error) {
-    console.error('Error fetching transaction:', error);
+    console.error('Error in getTransaction controller:', error);
     
-    const errorResponse: ApiResponse = {
-      success: false,
-      error: 'Failed to retrieve transaction'
-    };
+    if (error instanceof Error && error.message === 'Invalid transaction ID') {
+      ResponseUtils.sendBadRequest(res, error.message);
+      return;
+    }
 
-    const { encryptedData, type } = cryptoUtils.encryptData(JSON.stringify(errorResponse));
-    
-    res.status(500).json({
-      encryptedResponse: encryptedData,
-      type
-    });
+    ResponseUtils.sendError(res, 'Failed to retrieve transaction');
   }
 };
 
 export const sendTransaction = async (req: Request, res: Response): Promise<void> => {
   try {
     // Decrypt the incoming request
-    const { encryptedData, type } = req.body;
-    const decryptedData = cryptoUtils.decryptData(encryptedData, type);
-    const transactionData: CreateTransactionRequest = JSON.parse(decryptedData);
+    const transactionData = ResponseUtils.decryptRequestData<CreateTransactionRequest>(req);
 
-    // Validate transaction data
-    if (!transactionData.userId || !transactionData.amount || !transactionData.type || !transactionData.description) {
-      const errorResponse: ApiResponse = {
-        success: false,
-        error: 'Missing required fields: userId, amount, type, description'
-      };
+    // Create transaction through service
+    const transaction = await transactionService.createTransaction(transactionData);
 
-      const { encryptedData: errorEncrypted, type: errorType } = cryptoUtils.encryptData(JSON.stringify(errorResponse));
-      
-      res.status(400).json({
-        encryptedResponse: errorEncrypted,
-        type: errorType
-      });
-      return;
-    }
-
-    if (transactionData.amount <= 0) {
-      const errorResponse: ApiResponse = {
-        success: false,
-        error: 'Amount must be greater than 0'
-      };
-
-      const { encryptedData: errorEncrypted, type: errorType } = cryptoUtils.encryptData(JSON.stringify(errorResponse));
-      
-      res.status(400).json({
-        encryptedResponse: errorEncrypted,
-        type: errorType
-      });
-      return;
-    }
-
-    const transaction = await TransactionModel.create(transactionData);
-    
-    // Simulate processing delay
-    setTimeout(async () => {
-      await TransactionModel.updateStatus(transaction.id, 'completed');
-    }, 2000);
-
-    const response: ApiResponse = {
-      success: true,
-      data: transaction,
-      message: 'Transaction created successfully'
-    };
-
-    const { encryptedData: responseEncrypted, type: responseType } = cryptoUtils.encryptData(JSON.stringify(response));
-    
-    res.status(201).json({
-      encryptedResponse: responseEncrypted,
-      type: responseType
-    });
+    ResponseUtils.sendSuccess(res, transaction, 'Transaction created successfully', 201);
   } catch (error) {
-    console.error('Error creating transaction:', error);
+    console.error('Error in sendTransaction controller:', error);
     
-    const errorResponse: ApiResponse = {
-      success: false,
-      error: 'Failed to create transaction'
-    };
+    // Handle decryption errors
+    if (error instanceof Error && error.message.includes('decrypt')) {
+      ResponseUtils.sendBadRequest(res, 'Invalid encrypted data format');
+      return;
+    }
+    
+    // Handle validation errors
+    if (error instanceof Error && (
+      error.message.includes('required') || 
+      error.message.includes('must be greater than')
+    )) {
+      ResponseUtils.sendBadRequest(res, error.message);
+      return;
+    }
 
-    const { encryptedData: errorEncrypted, type: errorType } = cryptoUtils.encryptData(JSON.stringify(errorResponse));
-    
-    res.status(500).json({
-      encryptedResponse: errorEncrypted,
-      type: errorType
-    });
+    ResponseUtils.sendError(res, 'Failed to create transaction');
   }
 };

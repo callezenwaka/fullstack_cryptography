@@ -87,7 +87,7 @@ const UserList: React.FC = () => {
               className="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <div className="flex-shrink-0">
-                <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center text-gray-800">
                   <UserIcon className="w-6 h-6 text-primary-600" />
                 </div>
               </div>
