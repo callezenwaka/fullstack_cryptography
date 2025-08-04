@@ -1,7 +1,6 @@
 // server/src/services/userService.ts
 import { UserModel } from '../models';
-import { User } from '../types'; // Assuming you have a User type
-import { CreateUserRequest } from '../types';
+import { User, CreateUserRequest, UpdateUserRequest } from '../types';
 
 export class UserService {
   async getAllUsers(): Promise<User[]> {
@@ -58,7 +57,7 @@ export class UserService {
     }
   }
 
-  async updateUser(id: number, userData: Partial<User>): Promise<User | null> {
+  async updateUser(id: number, userData: UpdateUserRequest): Promise<User | null> {
     try {
       if (isNaN(id) || id <= 0) {
         throw new Error('Invalid user ID');

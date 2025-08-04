@@ -1,6 +1,6 @@
 // server/src/services/transactionService.ts
 import { TransactionModel } from '../models';
-import { CreateTransactionRequest, Transaction } from '../types/transaction';
+import { CreateTransactionRequest, UpdateTransactionRequest, Transaction } from '../types/transaction';
 
 export class TransactionService {
   async getAllTransactions(): Promise<Transaction[]> {
@@ -44,8 +44,17 @@ export class TransactionService {
       const transaction = await TransactionModel.create(transactionData);
       
       // Simulate processing delay
+      // setTimeout(async () => {
+      //   await TransactionModel.updateStatus(transaction.id, 'completed');
+      // }, 2000);
+
       setTimeout(async () => {
-        await TransactionModel.updateStatus(transaction.id, 'completed');
+        try {
+          await TransactionModel.updateStatus(transaction.id, 'completed');
+        } catch (error) {
+          console.error('Failed to update transaction status:', error);
+          // Maybe add to a retry queue or alert system
+        }
       }, 2000);
 
       return transaction;
@@ -62,4 +71,41 @@ export class TransactionService {
       throw new Error('Failed to create transaction');
     }
   }
+
+  async updateTransaction(id: number, transactionData: UpdateTransactionRequest): Promise<Transaction | null> {
+  try {
+    if (isNaN(id)) {
+      throw new Error('Invalid transaction ID');
+    }
+
+    const existingTransaction = await TransactionModel.findById(id);
+    if (!existingTransaction) {
+      return null;
+    }
+
+    // Business rule: Only pending transactions can be updated
+    if (existingTransaction.status !== 'pending' && transactionData.status) {
+      throw new Error('Cannot update status of non-pending transaction');
+    }
+
+    // Validate amount if provided
+    if (transactionData.amount !== undefined && transactionData.amount <= 0) {
+      throw new Error('Amount must be greater than 0');
+    }
+
+    return await TransactionModel.update(id, transactionData);
+  } catch (error) {
+    console.error('Error in TransactionService.updateTransaction:', error);
+    
+    if (error instanceof Error && (
+      error.message.includes('Invalid') || 
+      error.message.includes('Cannot update') ||
+      error.message.includes('must be greater than')
+    )) {
+      throw error;
+    }
+    
+    throw new Error('Failed to update transaction');
+  }
+}
 }

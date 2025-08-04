@@ -47,22 +47,47 @@ export class TransactionModel {
   }
 
   static async update(id: number, transactionData: UpdateTransactionRequest): Promise<Transaction | null> {
-    const setClause = Object.keys(transactionData)
-      .map((key, index) => `${key} = $${index + 2}`)
-      .join(', ');
-    
-    if (!setClause) return null;
+  // Filter out undefined values first
+  const filteredData = Object.fromEntries(
+    Object.entries(transactionData).filter(([_, value]) => value !== undefined)
+  );
 
-    const result = await query(`
-      UPDATE transactions 
-      SET ${setClause}, updated_at = CURRENT_TIMESTAMP
-      WHERE id = $1
-      RETURNING id, user_id as "userId", amount, type, description, status,
-                created_at as "createdAt", updated_at as "updatedAt"
-    `, [id, ...Object.values(transactionData)]);
-    
-    return result.rows[0] || null;
+  if (Object.keys(filteredData).length === 0) {
+    return null;
   }
+
+  const setClause = Object.keys(filteredData)
+    .map((key, index) => `${key} = $${index + 2}`)
+    .join(', ');
+
+  const result = await query(`
+    UPDATE transactions 
+    SET ${setClause}, updated_at = CURRENT_TIMESTAMP
+    WHERE id = $1
+    RETURNING id, user_id as "userId", amount, type, description, status,
+              created_at as "createdAt", updated_at as "updatedAt"
+  `, [id, ...Object.values(filteredData)]);
+  
+  return result.rows[0] || null;
+}
+
+  // static async update(id: number, transactionData: UpdateTransactionRequest): Promise<Transaction | null> {
+  //   const setClause = Object.keys(transactionData)
+  //     .map((key, index) => `${key} = $${index + 2}`)
+  //     .join(', ');
+    
+  //   if (!setClause) return null;
+
+  //   const result = await query(`
+  //     UPDATE transactions 
+  //     SET ${setClause}, updated_at = CURRENT_TIMESTAMP
+  //     WHERE id = $1
+  //     RETURNING id, user_id as "userId", amount, type, description, status,
+  //               created_at as "createdAt", updated_at as "updatedAt"
+  //   `, [id, ...Object.values(transactionData)]);
+    
+  //   return result.rows[0] || null;
+  // }
 
   static async delete(id: number): Promise<boolean> {
     const result = await query('DELETE FROM transactions WHERE id = $1', [id]);
